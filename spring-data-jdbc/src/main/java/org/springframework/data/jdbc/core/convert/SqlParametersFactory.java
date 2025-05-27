@@ -208,8 +208,11 @@ public class SqlParametersFactory {
 			return (id, aggregatePath) -> id;
 		}
 
-		return (id, aggregatePath) -> complexId.getPropertyPathAccessor(id)
-				.getProperty(aggregatePath.getRequiredPersistentPropertyPath());
+		return (id, aggregatePath) -> {
+
+			PersistentPropertyAccessor<Object> accessor = complexId.getPropertyAccessor(id);
+			return accessor.getProperty(aggregatePath.getRequiredLeafProperty());
+		};
 	}
 
 	private void addConvertedPropertyValue(SqlIdentifierParameterSource parameterSource,

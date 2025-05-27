@@ -17,6 +17,8 @@ package org.springframework.data.jdbc;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -39,8 +41,10 @@ import org.springframework.data.jdbc.repository.config.AbstractJdbcConfiguration
 import org.springframework.data.relational.core.mapping.Embedded;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.datasource.ConnectionHolder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
  * Benchmarks for Composite Ids in Spring Data JDBC.
@@ -82,7 +86,7 @@ public class CompositeIdBenchmarks extends BenchmarkSettings {
 		SimpleEntity alpha;
 
 		@Setup
-		public void setup() {
+		public void setup() throws SQLException {
 
 			context = new AnnotationConfigApplicationContext();
 			context.register(BenchmarkConfiguration.class);
@@ -91,6 +95,12 @@ public class CompositeIdBenchmarks extends BenchmarkSettings {
 
 			template = context.getBean(JdbcAggregateTemplate.class);
 			named = context.getBean(NamedParameterJdbcTemplate.class);
+			DataSource dataSource = context.getBean(DataSource.class);
+
+			Connection connection = dataSource.getConnection();
+			ConnectionHolder holder = new ConnectionHolder(connection, true);
+			holder.setSynchronizedWithTransaction(true);
+			TransactionSynchronizationManager.bindResource(dataSource, holder);
 
 			alpha = template.insert(new SimpleEntity(new WrappedPk(l.incrementAndGet()), "alpha"));
 		}
@@ -160,7 +170,7 @@ public class CompositeIdBenchmarks extends BenchmarkSettings {
 		List<SimpleEntityWithEmbeddedPk> entities = (List<SimpleEntityWithEmbeddedPk>) state.template
 				.insertAll(List.of(new SimpleEntityWithEmbeddedPk(new EmbeddedPk(23L, "x"), "alpha")));
 
-		state.template.delete(entities.get(1));
+		state.template.delete(entities.get(0));
 	}
 
 	@Benchmark
