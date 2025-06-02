@@ -929,7 +929,7 @@ public class SqlGenerator {
 		// return getTable(path).column(columnInfo.name()).as(columnInfo.alias());
 
 		AggregatePath.ColumnInfos columnInfos = mappingContext.getAggregatePath(entity).getTableInfo().idColumnInfos();
-		return columnInfos.any((ap, ci) -> sqlContext.getTable(columnInfos.fullPath(ap)).column(ci.name()));
+		return columnInfos.any((ap, ci) -> sqlContext.getColumn(columnInfos.fullPath(ap)));
 	}
 
 	private List<Column> getIdColumns() {
