@@ -88,8 +88,8 @@ public class SqlParametersFactory {
 			AggregatePath.ColumnInfos columnInfos = context.getAggregatePath(persistentEntity).getTableInfo().idColumnInfos();
 
 			//  fullPath: because we use the result with a PropertyPathAccessor
-			columnInfos.forEach((ap, __) -> {
-				Object idValue = propertyPathAccessor.getProperty(columnInfos.fullPath(ap).getRequiredPersistentPropertyPath());
+			columnInfos.forEachLong((ap, __) -> {
+				Object idValue = propertyPathAccessor.getProperty(ap.getRequiredPersistentPropertyPath());
 				RelationalPersistentProperty idProperty = ap.getRequiredLeafProperty();
 				addConvertedPropertyValue(parameterSource, idProperty, idValue, idProperty.getColumnName());
 			});
