@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -550,7 +551,7 @@ public interface AggregatePath extends Iterable<AggregatePath>, Comparable<Aggre
 		public List<Column> toColumnList(Table table) {
 
 			return columnCache.computeIfAbsent(table,
-					t -> columnInfos.values().stream().map(columnInfo -> t.column(columnInfo.name)).toList());
+					t -> toColumnList((__,ci) -> t.column(ci.name)));
 		}
 
 		/**
